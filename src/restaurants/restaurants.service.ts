@@ -1,7 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Restaurant } from './schemas/restaurant.schema';
+import { Query } from 'express-serve-static-core';
 import * as mongoose from 'mongoose';
+import APIFeatures from 'src/utils/apiFeatuers.utils';
 
 @Injectable()
 export class RestaurantsService {
@@ -10,22 +12,49 @@ export class RestaurantsService {
     private restaurantModel: mongoose.Model<Restaurant>,
   ) {}
 
-  // Get all restaurants => GET /restaurants
+  // Get all Restaurants  =>  GET  /restaurants
+  async findAll(query: Query): Promise<Restaurant[]> {
+    const resPerPage = 2; // داخل هر پیچ چندتا نمایش بده
+    const currentPage = Number(query.page) || 1;
+    const skip = resPerPage * (currentPage - 1);
 
-  async findAll(): Promise<Restaurant[]> {
-    const restaurants = await this.restaurantModel.find();
+    const keyword = query.keyword
+      ? {
+          name: {
+            $regex: query.keyword,
+            $options: 'i',
+          },
+        }
+      : {};
+
+    const restaurants = await this.restaurantModel
+      .find({ ...keyword })
+      .limit(resPerPage)
+      .skip(skip);
 
     return restaurants;
   }
 
   // Create new Restaurant  =>  POST  /restaurants
   async create(restaurant: Restaurant): Promise<Restaurant> {
+    const location = await APIFeatures.getRestaurantLocation(
+      restaurant.address,
+    );
+    console.log('location', location);
     const res = await this.restaurantModel.create(restaurant);
     return res;
   }
 
   // Get a restaurant by ID  =>  GET  /restaurants/:id
   async findById(id: string): Promise<Restaurant> {
+    const isValidId = mongoose.isValidObjectId(id);
+
+    if (!isValidId) {
+      throw new BadRequestException(
+        'Wrong mongoose ID Error. Please enter correct ID.',
+      );
+    }
+
     const restaurant = await this.restaurantModel.findById(id);
 
     if (!restaurant) {
