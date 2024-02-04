@@ -2,17 +2,22 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { RestaurantsService } from './restaurants.service';
 import { Restaurant } from './schemas/restaurant.schema';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import { Query as ExpressQuery } from 'express-serve-static-core';
+import { AuthGuard } from '@nestjs/passport';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { User } from 'src/auth/schemas/user.schema';
 
 @Controller('restaurants')
 export class RestaurantsController {
@@ -24,11 +29,14 @@ export class RestaurantsController {
   }
 
   @Post()
+  @UseGuards(AuthGuard())
   async createRestaurant(
     @Body()
     restaurant: CreateRestaurantDto,
+    @CurrentUser() user: User,
   ): Promise<Restaurant> {
-    return this.restaurantsService.create(restaurant);
+    console.log('restaurant:', restaurant);
+    return this.restaurantsService.create(restaurant, user);
   }
 
   @Get(':id')
@@ -40,13 +48,19 @@ export class RestaurantsController {
   }
 
   @Put(':id')
+  @UseGuards(AuthGuard())
   async updateRestaurant(
     @Param('id')
     id: string,
     @Body()
     restaurant: UpdateRestaurantDto,
+    @CurrentUser() user: User,
   ): Promise<Restaurant> {
-    await this.restaurantsService.findById(id);
+    const res = await this.restaurantsService.findById(id);
+
+    if (res.user.toString() !== user._id.toString()) {
+      throw new ForbiddenException('You can not update this restaurant.');
+    }
 
     return this.restaurantsService.updateById(id, restaurant);
   }
