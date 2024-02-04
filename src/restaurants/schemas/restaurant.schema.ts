@@ -1,5 +1,22 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
+import { User } from 'src/auth/schemas/user.schema';
+
+@Schema()
+export class Location {
+  @Prop({ type: String, enum: ['Point'] })
+  type: string;
+
+  @Prop({ index: '2dsphere' })
+  coordinates: number[];
+
+  formattedAddress: string;
+  city: string;
+  // state: string;
+  zipcode: string;
+  country: string;
+  streetName: string;
+}
 
 export enum Category {
   FAST_FOOD = 'Fast Food',
@@ -31,6 +48,12 @@ export class Restaurant {
 
   @Prop()
   images?: object[];
+
+  @Prop({ type: Object, ref: 'Location' })
+  location?: Location;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  user: User;
 }
 
 export const RestaurantSchema = SchemaFactory.createForClass(Restaurant);
