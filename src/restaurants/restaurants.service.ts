@@ -1,9 +1,14 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Restaurant } from './schemas/restaurant.schema';
 import { Query } from 'express-serve-static-core';
 import * as mongoose from 'mongoose';
 import APIFeatures from 'src/utils/apiFeatuers.utils';
+import { User } from 'src/auth/schemas/user.schema';
 
 @Injectable()
 export class RestaurantsService {
@@ -36,12 +41,14 @@ export class RestaurantsService {
   }
 
   // Create new Restaurant  =>  POST  /restaurants
-  async create(restaurant: Restaurant): Promise<Restaurant> {
+  async create(restaurant: Restaurant, user: User): Promise<Restaurant> {
     const location = await APIFeatures.getRestaurantLocation(
       restaurant.address,
     );
-    console.log('location', location);
-    const res = await this.restaurantModel.create(restaurant);
+
+    const data = Object.assign(restaurant, { user: user._id, location });
+
+    const res = await this.restaurantModel.create(data);
     return res;
   }
 
