@@ -1,58 +1,45 @@
-// import axios from 'axios';
-// import NodeGeocoder from 'node-geocoder';
-// // import { Location } from '../restaurants/schemas/restaurant.schema';
+import { JwtService } from '@nestjs/jwt';
+import { Location } from 'src/restaurants/schemas/restaurant.schema';
 
-// export default class APIFeatures {
-//   static async getRestaurantLocation(address) {
-//     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
-//     const response = await axios.get(url);
-
-//     try {
-//       const loc = response.data[0];
-
-//       if (loc.length === 0) {
-//         throw new Error('Location not found');
-//       }
-
-//       const addressDetails = {
-//         // zipCode: loc[0].zipcode,
-//         // city: loc[0].city,
-//         // country: loc[0].countryCode,
-//       };
-
-//       return addressDetails;
-//     } catch (error) {
-//       throw new Error('Error retrieving address details: ' + error.message);
-//     }
-//   }
-// }
-
-import NodeGeocoder from 'node-geocoder';
+const nodeGeoCoder = require('node-geocoder');
 
 export default class APIFeatures {
   static async getRestaurantLocation(address) {
-    const geocoder = NodeGeocoder({
-      provider: 'openstreetmap',
-    });
-
     try {
-      const result = await geocoder.geocode(address);
-
-      console.log('result:', result);
-
-      if (result.length === 0) {
-        throw new Error('Location not found');
-      }
-
-      const addressDetails = {
-        zipCode: result[0].zipcode,
-        city: result[0].city,
-        country: result[0].countryCode,
+      const options = {
+        provider: 'openstreetmap',
+        formatter: null,
       };
 
-      return addressDetails;
+      const geoCoder = nodeGeoCoder(options);
+
+      const loc = await geoCoder.geocode(address);
+
+      const location: Location = {
+        type: 'Point',
+        coordinates: [loc[0].latitude, loc[0].longitude],
+        formattedAddress: loc[0].formattedAddress,
+        city: loc[0].city,
+        // state: loc[0].stateCode,
+        streetName: loc[0].streetName,
+        zipcode: loc[0].zipcode,
+        country: loc[0].countryCode,
+      };
+
+      return location;
     } catch (error) {
-      throw new Error('Error retrieving address details: ' + error.message);
+      console.log(error.message);
     }
+  }
+
+  static async assignJwtToken(
+    userId: string,
+    jwtService: JwtService,
+  ): Promise<string> {
+    const payload = { id: userId };
+
+    const token = await jwtService.sign(payload);
+
+    return token;
   }
 }
