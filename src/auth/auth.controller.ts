@@ -1,8 +1,12 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { SignUpDto } from './dto/signup.dto';
-import { User } from './schemas/user.schema';
+import {
+  Get,
+  Post,
+} from '@nestjs/common/decorators/http/request-mapping.decorator';
+import { Body } from '@nestjs/common/decorators/http/route-params.decorator';
 
 @Controller('auth')
 export class AuthController {
