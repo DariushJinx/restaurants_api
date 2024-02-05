@@ -16,10 +16,10 @@ import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import { Query as ExpressQuery } from 'express-serve-static-core';
 import { AuthGuard } from '@nestjs/passport';
-import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
-import { User } from 'src/auth/schemas/user.schema';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { User } from '../auth/schemas/user.schema';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { RolesGuard } from '../auth/guards/roles.guard';
 
 @Controller('restaurants')
 export class RestaurantsController {
@@ -60,7 +60,7 @@ export class RestaurantsController {
   ): Promise<Restaurant> {
     const res = await this.restaurantsService.findById(id);
 
-    if (res.user.toString() !== user._id.toString()) {
+    if (res.user.toString() !== user.toString()) {
       throw new ForbiddenException('You can not update this restaurant.');
     }
 
@@ -76,7 +76,7 @@ export class RestaurantsController {
   ): Promise<{ deleted: boolean }> {
     const res = await this.restaurantsService.findById(id);
 
-    if (res.user.toString() !== user._id.toString()) {
+    if (res.user.toString() !== user.toString()) {
       throw new ForbiddenException('You can not delete this restaurant.');
     }
 
