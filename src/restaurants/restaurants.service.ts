@@ -1,14 +1,11 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Restaurant } from './schemas/restaurant.schema';
 import { Query } from 'express-serve-static-core';
 import * as mongoose from 'mongoose';
-import APIFeatures from 'src/utils/apiFeatuers.utils';
-import { User } from 'src/auth/schemas/user.schema';
+import APIFeatures from '../utils/apiFeatuers.utils';
+import { User } from '../auth/schemas/user.schema';
+import { NotFoundException } from '@nestjs/common/exceptions/not-found.exception';
 
 @Injectable()
 export class RestaurantsService {
@@ -46,7 +43,7 @@ export class RestaurantsService {
       restaurant.address,
     );
 
-    const data = Object.assign(restaurant, { user: user._id, location });
+    const data = Object.assign(restaurant, { user: user, location });
 
     const res = await this.restaurantModel.create(data);
     return res;
