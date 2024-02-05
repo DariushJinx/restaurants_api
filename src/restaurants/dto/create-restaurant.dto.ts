@@ -7,7 +7,7 @@ import {
   IsEmpty,
 } from 'class-validator';
 import { Category } from '../schemas/restaurant.schema';
-import { User } from 'src/auth/schemas/user.schema';
+import { User } from '../../auth/schemas/user.schema';
 
 export class CreateRestaurantDto {
   @IsNotEmpty()
