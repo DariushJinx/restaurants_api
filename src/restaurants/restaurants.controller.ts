@@ -18,6 +18,8 @@ import { Query as ExpressQuery } from 'express-serve-static-core';
 import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { User } from 'src/auth/schemas/user.schema';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
 
 @Controller('restaurants')
 export class RestaurantsController {
@@ -29,13 +31,13 @@ export class RestaurantsController {
   }
 
   @Post()
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard(), RolesGuard)
+  @Roles('admin', 'user')
   async createRestaurant(
     @Body()
     restaurant: CreateRestaurantDto,
     @CurrentUser() user: User,
   ): Promise<Restaurant> {
-    console.log('restaurant:', restaurant);
     return this.restaurantsService.create(restaurant, user);
   }
 
@@ -66,11 +68,17 @@ export class RestaurantsController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   async deleteRestaurant(
     @Param('id')
     id: string,
+    @CurrentUser() user: User,
   ): Promise<{ deleted: boolean }> {
-    await this.restaurantsService.findById(id);
+    const res = await this.restaurantsService.findById(id);
+
+    if (res.user.toString() !== user._id.toString()) {
+      throw new ForbiddenException('You can not delete this restaurant.');
+    }
 
     const restaurant = this.restaurantsService.deleteById(id);
 
