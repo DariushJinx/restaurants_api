@@ -14,5 +14,6 @@ import { PassportModule } from '@nestjs/passport';
   ],
   controllers: [RestaurantsController],
   providers: [RestaurantsService],
+  exports: [MongooseModule, RestaurantsService],
 })
 export class RestaurantsModule {}
