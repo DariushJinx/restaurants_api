@@ -60,7 +60,7 @@ export class RestaurantsController {
   ): Promise<Restaurant> {
     const res = await this.restaurantsService.findById(id);
 
-    if (res.user.toString() !== user.toString()) {
+    if (res.user.toString() !== user._id.toString()) {
       throw new ForbiddenException('You can not update this restaurant.');
     }
 
@@ -76,7 +76,7 @@ export class RestaurantsController {
   ): Promise<{ deleted: boolean }> {
     const res = await this.restaurantsService.findById(id);
 
-    if (res.user.toString() !== user.toString()) {
+    if (res.user.toString() !== user._id.toString()) {
       throw new ForbiddenException('You can not delete this restaurant.');
     }
 
