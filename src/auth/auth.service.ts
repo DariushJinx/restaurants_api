@@ -12,7 +12,7 @@ import * as bcrypt from 'bcryptjs';
 import { LoginDto } from './dto/login.dto';
 // import APIFeatures from 'src/utils/apiFeatures.utils';
 import { JwtService } from '@nestjs/jwt';
-import APIFeatures from 'src/utils/apiFeatuers.utils';
+import APIFeatures from '../utils/apiFeatuers.utils';
 
 @Injectable()
 export class AuthService {
