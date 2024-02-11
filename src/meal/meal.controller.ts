@@ -16,18 +16,15 @@ import { CreateMealDto } from './dto/create-meal.dto';
 import { UpdateMealDto } from './dto/update-meal.dto';
 import { MealService } from './meal.service';
 import { Meal } from './schemas/meal.schema';
-import { RestaurantsService } from '../restaurants/restaurants.service';
 
 @Controller('meals')
 export class MealController {
-  constructor(
-    private mealService: MealService,
-    private restaurantService: RestaurantsService,
-  ) {}
+  constructor(private mealService: MealService) {}
 
   @Get()
   async getAllMeals(): Promise<Meal[]> {
-    return this.mealService.findAll();
+    const meals = this.mealService.findAll();
+    return meals;
   }
 
   @Get('restaurant/:id')
