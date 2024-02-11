@@ -5,7 +5,6 @@ import { AuthModule } from '../auth/auth.module';
 import { MealController } from './meal.controller';
 import { MealService } from './meal.service';
 import { MealSchema } from './schemas/meal.schema';
-import { RestaurantsService } from 'src/restaurants/restaurants.service';
 
 @Module({
   imports: [
@@ -14,6 +13,6 @@ import { RestaurantsService } from 'src/restaurants/restaurants.service';
     RestaurantsModule,
   ],
   controllers: [MealController],
-  providers: [MealService, RestaurantsService],
+  providers: [MealService],
 })
 export class MealModule {}
